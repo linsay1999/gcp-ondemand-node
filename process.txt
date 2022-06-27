@@ -1,0 +1,79 @@
+######CREATING A JENKINS IMAGE IN GCP FOR 
+###S2-Month7-Week2-Day1
+
+A - IN GCP 
+   1. Create an instance 
+       a- Create a project (sample-instance)
+       b- Select "Compute Engine"
+       c- Select "VM Instances"
+       d- Enable "Compute Engine API"
+       e- Enable Billing
+       f- Select "Create Instance"
+       g- Set the configuration of the VM including  HTTP and HTTPS traffic Access
+       h- Configure the network allowing all protocols and protocols
+
+   2. Configure the  Service Account Credentials
+       a- Select IAM (while in the project)
+       b- Select "Service Accounts"
+       c- Select "Create Service Account"
+       d- Give a "Service account name". e.g: "jenkins-node"
+       e- Give a "Service accound ID". e.g: "jenkins-node"
+       f- Give a small description in "Service account description"
+       h- Select "Create and Continue"
+       i- Click "Select a role", chose "Owner" and click on "Continue"
+       k- Click on "Done"
+       l- Select the service created
+       m- Click on "KEYS" 
+       n- Select on "ADD KEY", take "JSON" Key type and select "CREATE". That will automatically be download in 
+            your compute "Downloads". To be saved preciously
+
+  3. Create a Jenkins image
+     a. run step script attached here. "image.sh"
+     b. give passwd to the users created by the script
+     c. Stop the instance 
+     d. Search for "Images"
+     e. Click on "CREATE IMAGE"
+     f. Give a name to the image e.g: jenkins-gcp-node-image
+     g. "Source": Leave it a "disk"
+     h. "Source disk" : Select the server in which you have package your image
+     i. The select "Create image"
+
+    B - IN JENKINS 
+     1. Install the puglin "google compute engine"
+     2. Click on "Manage Jenkins" 
+     3. Click on  "Manage nodes"
+     3. Click on "Configure Clouds"
+     4.  Click on "Add New Cloud" and select "Google Compute Engine"
+     5. Give a name to that (e.g GCP )
+     6.  Write the Project ID create on step1.a above (sample-instance)
+     7. Set the instance Cap which the max. number of instance allowed to be deployed
+     8.  Select "Add" on "Service Account Credentials" and take "jenkins". The page of Credential will open
+     9.  In "Kind" select "Google Service Account from Private key" and leave"Scope" as it is
+     10. Insert the project name we had in A.1
+     11. Browse and upload the file downloaded on step 2.n 
+     13. Click on add. The former windows will open. Select the service as it will appear on the drop down
+          We should the have the message "The credential successfully made an API request to Google Compute Engine"
+     14. Click on "add" in "Instance configuration"
+     15. Put any string in "Name Prefix" e.g "on-demande-instance"
+     16. Put any string in "Description" e.g."My Jenkins on demand node" 
+     17. In "Node Retention Time" put the amount of minutes you the provisionned node to last before being killed
+     18.  On the usage we can leave "Use this node as much as possible "
+     19.  Specify the label you will want to reference in your Jenkinsfile. For instance "gcp-agent"
+     20.  Specify the number of executors which actually the number of job the node can run at a time
+     21. Leave Launch timeout as it is
+     22.  Run as user "jenkins"
+     23. "Remote location" specify the location where you want Jenkins to store all datas. If not provided,    
+             Jenkins will create one by itself
+     24. On the "Location", select a "Region" and a "Zone" where the remote server will be created
+     25. Click on "Advanced", select a machine type (e.g. "e2-small")
+     26. On "Networking", select the default Network and the default Subnetwork
+     27. Select "Attach Exterrnal IP"
+     28. On the "Boot Disk", specify "Image project" created in 1.a
+     29. On the drop down of  "Image name" we select the image created in section 3 above
+     30. "Disk Type" select "pd-ssd"
+     31. Put the size same the server that was used to create the image
+     32. Apply and save 
+     33. Delete the server created in gcp is you do not need 
+
+    The configuration is ok. You can now call the agent in your Jenkinsfile and a temporary server will be launched the designed job
+
